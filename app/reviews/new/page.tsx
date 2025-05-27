@@ -12,12 +12,16 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Camera, ChevronRight, ImagePlus } from "lucide-react"
+import { ArrowLeft, Camera, ChevronRight, ImagePlus, X } from "lucide-react"
 import StarRating from "@/components/ui/star-rating"
+import Image from "next/image"
 
 export default function NewReviewPage() {
   const [activeTab, setActiveTab] = useState("product")
   const [rating, setRating] = useState(0)
+  const [productImage, setProductImage] = useState<string | null>(null)
+  const [beforeImage, setBeforeImage] = useState<string | null>(null)
+  const [afterImage, setAfterImage] = useState<string | null>(null)
 
   const skinEffects = [
     { id: "hydration", label: "Hydration" },
@@ -60,6 +64,39 @@ export default function NewReviewPage() {
     e.preventDefault()
     // Handle form submission
     console.log("Form submitted")
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setProductImage(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleBeforeImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setBeforeImage(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleAfterImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setAfterImage(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
   }
 
   return (
@@ -116,10 +153,46 @@ export default function NewReviewPage() {
 
                   <div className="space-y-2">
                     <Label>Product Image</Label>
-                    <div className="flex h-[200px] w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-muted-foreground/25 bg-muted/50 p-4 transition-colors hover:border-muted-foreground/50">
-                      <ImagePlus className="h-8 w-8 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">Drag and drop or click to upload</p>
-                      <Input type="file" className="hidden" accept="image/*" id="product-image" />
+                    <div className="space-y-4">
+                      <div
+                        className="flex h-[200px] w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-muted-foreground/25 bg-muted/50 p-4 transition-colors hover:border-muted-foreground/50"
+                        onClick={() => document.getElementById("product-image")?.click()}
+                      >
+                        {productImage ? (
+                          <div className="relative h-full w-full">
+                            <Image
+                              src={productImage || "/placeholder.svg"}
+                              alt="Product preview"
+                              fill
+                              className="rounded-lg object-cover"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute right-2 top-2"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setProductImage(null)
+                              }}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <ImagePlus className="h-8 w-8 text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">Drag and drop or click to upload</p>
+                          </>
+                        )}
+                      </div>
+                      <Input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        id="product-image"
+                        onChange={handleImageUpload}
+                      />
                     </div>
                   </div>
                 </div>
@@ -160,13 +233,83 @@ export default function NewReviewPage() {
                   <div className="space-y-2">
                     <Label>Before & After (Optional)</Label>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="flex h-[150px] cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-muted-foreground/25 bg-muted/50 p-4 transition-colors hover:border-muted-foreground/50">
-                        <Camera className="h-6 w-6 text-muted-foreground" />
-                        <p className="text-xs text-muted-foreground">Before</p>
+                      <div
+                        className="flex h-[150px] cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-muted-foreground/25 bg-muted/50 p-4 transition-colors hover:border-muted-foreground/50"
+                        onClick={() => document.getElementById("before-image")?.click()}
+                      >
+                        {beforeImage ? (
+                          <div className="relative h-full w-full">
+                            <Image
+                              src={beforeImage || "/placeholder.svg"}
+                              alt="Before"
+                              fill
+                              className="rounded-lg object-cover"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute right-1 top-1"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setBeforeImage(null)
+                              }}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <Camera className="h-6 w-6 text-muted-foreground" />
+                            <p className="text-xs text-muted-foreground">Before</p>
+                          </>
+                        )}
+                        <Input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          id="before-image"
+                          onChange={handleBeforeImageUpload}
+                        />
                       </div>
-                      <div className="flex h-[150px] cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-muted-foreground/25 bg-muted/50 p-4 transition-colors hover:border-muted-foreground/50">
-                        <Camera className="h-6 w-6 text-muted-foreground" />
-                        <p className="text-xs text-muted-foreground">After</p>
+                      <div
+                        className="flex h-[150px] cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-muted-foreground/25 bg-muted/50 p-4 transition-colors hover:border-muted-foreground/50"
+                        onClick={() => document.getElementById("after-image")?.click()}
+                      >
+                        {afterImage ? (
+                          <div className="relative h-full w-full">
+                            <Image
+                              src={afterImage || "/placeholder.svg"}
+                              alt="After"
+                              fill
+                              className="rounded-lg object-cover"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute right-1 top-1"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setAfterImage(null)
+                              }}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <Camera className="h-6 w-6 text-muted-foreground" />
+                            <p className="text-xs text-muted-foreground">After</p>
+                          </>
+                        )}
+                        <Input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          id="after-image"
+                          onChange={handleAfterImageUpload}
+                        />
                       </div>
                     </div>
                   </div>
@@ -271,4 +414,3 @@ export default function NewReviewPage() {
     </div>
   )
 }
-
