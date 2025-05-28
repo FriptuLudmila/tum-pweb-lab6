@@ -15,13 +15,31 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Camera, ChevronRight, ImagePlus, X } from "lucide-react"
 import StarRating from "@/components/ui/star-rating"
 import Image from "next/image"
+import AuthGuard from "@/components/ui/auth-guard"
+import { saveReview } from "@/lib/storage"
 
-export default function NewReviewPage() {
+function NewReviewForm() {
   const [activeTab, setActiveTab] = useState("product")
   const [rating, setRating] = useState(0)
   const [productImage, setProductImage] = useState<string | null>(null)
   const [beforeImage, setBeforeImage] = useState<string | null>(null)
   const [afterImage, setAfterImage] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Form data state
+  const [formData, setFormData] = useState({
+    productName: "",
+    brand: "",
+    category: "",
+    reviewTitle: "",
+    reviewText: "",
+    longevity: "",
+    skinType: "",
+    price: "",
+    customEffect: "",
+    effects: {} as Record<string, boolean>,
+    wouldBuyAgain: false,
+  })
 
   const skinEffects = [
     { id: "hydration", label: "Hydration" },
@@ -50,6 +68,23 @@ export default function NewReviewPage() {
     { value: "6-plus-months", label: "6+ months" },
   ]
 
+  const updateFormData = (field: string, value: string | boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+  }
+
+  const updateEffects = (effectId: string, checked: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      effects: {
+        ...prev.effects,
+        [effectId]: checked,
+      },
+    }))
+  }
+
   const handleNextTab = () => {
     if (activeTab === "product") setActiveTab("review")
     if (activeTab === "review") setActiveTab("details")
@@ -60,10 +95,54 @@ export default function NewReviewPage() {
     if (activeTab === "details") setActiveTab("review")
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission
-    console.log("Form submitted")
+    setIsSubmitting(true)
+
+    try {
+      // Get selected effects
+      const selectedEffects = skinEffects.filter((effect) => formData.effects[effect.id]).map((effect) => effect.label)
+
+      // Basic validation
+      if (!formData.productName || !formData.brand || !formData.category || rating === 0) {
+        alert("Please fill in all required fields and provide a rating.")
+        setIsSubmitting(false)
+        return
+      }
+
+      // Create review object
+      const reviewData = {
+        productName: formData.productName,
+        brand: formData.brand,
+        category: formData.category,
+        rating,
+        title: formData.reviewTitle || `Review of ${formData.productName}`,
+        content: formData.reviewText || "",
+        productImage,
+        beforeImage,
+        afterImage,
+        effects: selectedEffects,
+        customEffects: formData.customEffect || "",
+        skinType: formData.skinType || "",
+        longevity: formData.longevity || "",
+        price: Number.parseFloat(formData.price) || 0,
+        wouldBuyAgain: formData.wouldBuyAgain,
+      }
+
+      // Save review
+      await saveReview(reviewData)
+
+      // Show success message
+      alert("Review submitted successfully!")
+
+      // Redirect to activity page
+      window.location.href = "/my-activity"
+    } catch (error) {
+      console.error("Error saving review:", error)
+      alert("Error submitting review. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,18 +203,30 @@ export default function NewReviewPage() {
               <CardContent className="pt-6">
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="product-name">Product Name</Label>
-                    <Input id="product-name" placeholder="Enter product name" />
+                    <Label htmlFor="product-name">Product Name *</Label>
+                    <Input
+                      id="product-name"
+                      value={formData.productName}
+                      onChange={(e) => updateFormData("productName", e.target.value)}
+                      placeholder="Enter product name"
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="brand">Brand</Label>
-                    <Input id="brand" placeholder="Enter brand name" />
+                    <Label htmlFor="brand">Brand *</Label>
+                    <Input
+                      id="brand"
+                      value={formData.brand}
+                      onChange={(e) => updateFormData("brand", e.target.value)}
+                      placeholder="Enter brand name"
+                      required
+                    />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select>
+                    <Label htmlFor="category">Category *</Label>
+                    <Select value={formData.category} onValueChange={(value) => updateFormData("category", value)}>
                       <SelectTrigger id="category">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
@@ -212,19 +303,26 @@ export default function NewReviewPage() {
               <CardContent className="pt-6">
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label>Rating</Label>
+                    <Label>Rating *</Label>
                     <StarRating rating={rating} onRatingChange={setRating} size="large" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="review-title">Review Title</Label>
-                    <Input id="review-title" placeholder="Summarize your experience" />
+                    <Input
+                      id="review-title"
+                      value={formData.reviewTitle}
+                      onChange={(e) => updateFormData("reviewTitle", e.target.value)}
+                      placeholder="Summarize your experience"
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="review-text">Your Review</Label>
                     <Textarea
                       id="review-text"
+                      value={formData.reviewText}
+                      onChange={(e) => updateFormData("reviewText", e.target.value)}
                       placeholder="Share your experience with this product..."
                       className="min-h-[150px]"
                     />
@@ -334,7 +432,7 @@ export default function NewReviewPage() {
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="longevity">Product Longevity</Label>
-                    <Select>
+                    <Select value={formData.longevity} onValueChange={(value) => updateFormData("longevity", value)}>
                       <SelectTrigger id="longevity">
                         <SelectValue placeholder="How long did it last?" />
                       </SelectTrigger>
@@ -350,7 +448,7 @@ export default function NewReviewPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="skin-type">Your Skin Type</Label>
-                    <Select>
+                    <Select value={formData.skinType} onValueChange={(value) => updateFormData("skinType", value)}>
                       <SelectTrigger id="skin-type">
                         <SelectValue placeholder="Select your skin type" />
                       </SelectTrigger>
@@ -369,7 +467,11 @@ export default function NewReviewPage() {
                     <div className="grid grid-cols-2 gap-2">
                       {skinEffects.map((effect) => (
                         <div key={effect.id} className="flex items-center space-x-2">
-                          <Checkbox id={effect.id} />
+                          <Checkbox
+                            id={effect.id}
+                            checked={formData.effects[effect.id] || false}
+                            onCheckedChange={(checked) => updateEffects(effect.id, checked as boolean)}
+                          />
                           <Label htmlFor={effect.id} className="text-sm font-normal">
                             {effect.label}
                           </Label>
@@ -380,7 +482,13 @@ export default function NewReviewPage() {
                       <Label htmlFor="custom-effect" className="text-sm">
                         Other Effects
                       </Label>
-                      <Input id="custom-effect" placeholder="Add other effects..." className="mt-1" />
+                      <Input
+                        id="custom-effect"
+                        value={formData.customEffect}
+                        onChange={(e) => updateFormData("customEffect", e.target.value)}
+                        placeholder="Add other effects..."
+                        className="mt-1"
+                      />
                     </div>
                   </div>
 
@@ -388,12 +496,24 @@ export default function NewReviewPage() {
                     <Label htmlFor="price">Price</Label>
                     <div className="flex items-center">
                       <span className="mr-2 text-muted-foreground">$</span>
-                      <Input id="price" type="number" placeholder="0.00" step="0.01" min="0" />
+                      <Input
+                        id="price"
+                        value={formData.price}
+                        onChange={(e) => updateFormData("price", e.target.value)}
+                        type="number"
+                        placeholder="0.00"
+                        step="0.01"
+                        min="0"
+                      />
                     </div>
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <Checkbox id="repurchase" />
+                    <Checkbox
+                      id="repurchase"
+                      checked={formData.wouldBuyAgain}
+                      onCheckedChange={(checked) => updateFormData("wouldBuyAgain", checked as boolean)}
+                    />
                     <Label htmlFor="repurchase">Would purchase again</Label>
                   </div>
                 </div>
@@ -404,13 +524,21 @@ export default function NewReviewPage() {
               <Button type="button" variant="outline" onClick={handlePrevTab}>
                 Back
               </Button>
-              <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700">
-                Submit Review
+              <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700" disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Submit Review"}
               </Button>
             </div>
           </TabsContent>
         </form>
       </Tabs>
     </div>
+  )
+}
+
+export default function NewReviewPage() {
+  return (
+    <AuthGuard>
+      <NewReviewForm />
+    </AuthGuard>
   )
 }

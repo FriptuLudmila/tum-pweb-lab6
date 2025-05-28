@@ -1,9 +1,20 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ChevronRight, Star, TrendingUp, Users } from "lucide-react"
 import FeaturedReviews from "@/components/ui/featured-reviews"
+import { getCurrentUser, logout } from "@/lib/auth"
+import type { User } from "@/lib/auth"
 
 export default function Home() {
+  const [user, setUser] = useState<User | null>(null)
+
+  useEffect(() => {
+    setUser(getCurrentUser())
+  }, [])
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -21,19 +32,35 @@ export default function Home() {
             <Link href="/products" className="text-sm font-medium hover:underline">
               Products
             </Link>
+            {user && (
+              <Link href="/my-activity" className="text-sm font-medium hover:underline">
+                My Activity
+              </Link>
+            )}
             <Link href="/reviews/new" className="text-sm font-medium hover:underline">
-              Write a Review
+              Write Review
             </Link>
           </nav>
           <div className="ml-4 flex items-center gap-2">
-            <Link href="/login">
-              <Button variant="outline" size="sm">
-                Log in
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button size="sm">Sign up</Button>
-            </Link>
+            {user ? (
+              <>
+                <span className="text-sm text-muted-foreground">Welcome, {user.username}!</span>
+                <Button variant="outline" size="sm" onClick={logout}>
+                  Log out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="outline" size="sm">
+                    Log in
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button size="sm">Sign up</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -157,6 +184,14 @@ export default function Home() {
           <p className="text-center text-sm text-muted-foreground md:text-left">
             &copy; {new Date().getFullYear()} SkinReview. All rights reserved.
           </p>
+          <div className="flex gap-4">
+            <Link href="/terms" className="text-sm text-muted-foreground hover:underline">
+              Terms
+            </Link>
+            <Link href="/privacy" className="text-sm text-muted-foreground hover:underline">
+              Privacy
+            </Link>
+          </div>
         </div>
       </footer>
     </div>
