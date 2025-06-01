@@ -60,12 +60,6 @@ export default function Home() {
             <span className="text-xl font-semibold">SkinReview</span>
           </Link>
           <nav className="ml-auto flex gap-4 sm:gap-6">
-            <Link href="/explore" className="text-sm font-medium hover:underline">
-              Explore
-            </Link>
-            <Link href="/products" className="text-sm font-medium hover:underline">
-              Products
-            </Link>
             {user && (
               <Link href="/my-activity" className="text-sm font-medium hover:underline">
                 My Activity
@@ -130,8 +124,8 @@ export default function Home() {
             <div className="flex items-center justify-center">
               <div className="relative h-[350px] w-[350px] overflow-hidden rounded-xl shadow-lg">
                 <Image
-                  src="/images/13933.jpg?height=350&width=350"
-                  alt="Skincare products and routine"
+                  src="/images/13933.jpg"
+                  alt="My skincare routine and favorite products"
                   fill
                   className="object-cover"
                 />
@@ -154,8 +148,8 @@ export default function Home() {
           <div className="relative overflow-hidden rounded-2xl">
             <div className="aspect-[21/9] w-full">
               <Image
-                src="/images/24618.jpg?height=400&width=900"
-                alt="Beautiful skincare flat lay with products, flowers, and natural elements"
+                src="/images/24618.jpg"
+                alt="My skincare routine and favorite products"
                 fill
                 className="object-cover"
               />
