@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Star } from "lucide-react"
-import { login } from "@/lib/auth"
+import { login, isEmailRegistered } from "@/lib/auth"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -23,6 +23,13 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
+      // Check if email is registered
+      if (!isEmailRegistered(email)) {
+        setError("No account found with this email. Please sign up first.")
+        setIsLoading(false)
+        return
+      }
+
       const user = login(email, password)
       if (user) {
         window.location.href = "/"
@@ -103,7 +110,9 @@ export default function LoginPage() {
       </Card>
 
       <div className="mt-6 text-center">
-        <p className="text-xs text-muted-foreground">Demo: Use any email and password to log in</p>
+        <p className="text-xs text-muted-foreground">
+          Demo: Create an account first, then use the same email to log in and your data will persist
+        </p>
       </div>
     </div>
   )

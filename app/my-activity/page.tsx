@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, Plus, Calendar, TrendingUp, Heart } from "lucide-react"
+import { Star, Plus, Calendar, TrendingUp, Heart, ArrowLeft } from "lucide-react"
 import AuthGuard from "@/components/ui/auth-guard"
 import { getCurrentUser } from "@/lib/auth"
 import { getUserReviews } from "@/lib/storage"
@@ -57,17 +57,25 @@ function MyActivityContent() {
 
   return (
     <div className="container mx-auto max-w-6xl py-8 md:py-12 px-4 sm:px-6 lg:px-8">
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">My Activity</h1>
-          <p className="text-muted-foreground">Track your skincare journey and reviews</p>
-        </div>
-        <Link href="/reviews/new">
-          <Button className="bg-emerald-600 hover:bg-emerald-700">
-            <Plus className="mr-2 h-4 w-4" />
-            New Review
+      <div className="mb-8 flex items-center gap-4">
+        <Link href="/">
+          <Button variant="ghost" size="icon">
+            <ArrowLeft className="h-4 w-4" />
+            <span className="sr-only">Back to Home</span>
           </Button>
         </Link>
+        <div className="flex-1 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">My Activity</h1>
+            <p className="text-muted-foreground">Track your skincare journey and reviews</p>
+          </div>
+          <Link href="/reviews/new">
+            <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <Plus className="mr-2 h-4 w-4" />
+              New Review
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Stats Overview */}
@@ -109,12 +117,17 @@ function MyActivityContent() {
               <h3 className="text-lg font-semibold">No reviews yet</h3>
               <p className="text-muted-foreground">Start your skincare journey by writing your first review!</p>
             </div>
-            <Link href="/reviews/new">
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
-                <Plus className="mr-2 h-4 w-4" />
-                Write Your First Review
-              </Button>
-            </Link>
+            <div className="flex gap-2">
+              <Link href="/reviews/new">
+                <Button className="bg-emerald-600 hover:bg-emerald-700">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Write Your First Review
+                </Button>
+              </Link>
+              <Link href="/">
+                <Button variant="outline">Explore Reviews</Button>
+              </Link>
+            </div>
           </div>
         </Card>
       ) : (

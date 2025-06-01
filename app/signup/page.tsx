@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Star } from "lucide-react"
-import { signup } from "@/lib/auth"
+import { signup, isEmailRegistered } from "@/lib/auth"
 
 export default function SignupPage() {
   const [email, setEmail] = useState("")
@@ -24,6 +24,13 @@ export default function SignupPage() {
     setIsLoading(true)
 
     try {
+      // Check if email is already registered
+      if (isEmailRegistered(email)) {
+        setError("An account with this email already exists. Please log in instead.")
+        setIsLoading(false)
+        return
+      }
+
       const user = signup(email, password, username)
       if (user) {
         window.location.href = "/"
