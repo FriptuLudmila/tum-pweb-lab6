@@ -47,7 +47,7 @@ function MyActivityContent() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto max-w-6xl py-8 md:py-12 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-screen-xl w-full py-8 md:py-12 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-center min-h-[400px]">
           <p>Loading your activity...</p>
         </div>
@@ -56,7 +56,7 @@ function MyActivityContent() {
   }
 
   return (
-    <div className="container mx-auto max-w-6xl py-6 sm:py-8 md:py-12 px-4 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-screen-xl w-full py-6 sm:py-8 md:py-12 px-4 sm:px-6 lg:px-8">
       <div className="mb-6 sm:mb-8 flex items-start gap-3 sm:gap-4">
         <Link href="/">
           <Button variant="ghost" size="icon" className="mt-1">
